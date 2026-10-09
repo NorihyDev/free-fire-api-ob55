@@ -1,0 +1,15 @@
+.git
+.venv
+.env
+.env.*
+config/accounts.json
+config/guest-pending.json
+__pycache__
+.pytest_cache
+.ruff_cache
+tests
+bruno
+*.egg-info
+build
+dist
+*.log

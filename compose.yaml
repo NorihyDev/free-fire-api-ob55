@@ -1,0 +1,23 @@
+services:
+  api:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      FF_MODE: ${FF_MODE:-demo}
+      FF_RELEASE_VERSION: ${FF_RELEASE_VERSION:-OB55}
+      FF_DEFAULT_REGION: ${FF_DEFAULT_REGION:-IND}
+      FF_API_KEY: ${FF_API_KEY:-}
+      FF_ACCOUNTS_FILE: /run/config/accounts.json
+      FF_LOGIN_URL: ${FF_LOGIN_URL:-https://loginbp.ggblueshark.com/MajorLogin}
+      FF_TOKEN_URL: ${FF_TOKEN_URL:-https://ffmconnect.live.gop.garenanow.com/oauth/guest/token/grant}
+      FF_UNITY_VERSION: ${FF_UNITY_VERSION:-2018.4.11f1}
+      FF_TIMEOUT_SECONDS: ${FF_TIMEOUT_SECONDS:-15}
+      FF_CACHE_TTL_SECONDS: ${FF_CACHE_TTL_SECONDS:-30}
+      FF_RATE_LIMIT_PER_MINUTE: ${FF_RATE_LIMIT_PER_MINUTE:-60}
+    volumes:
+      - type: bind
+        source: ./config
+        target: /run/config
+        read_only: true
+    restart: unless-stopped
