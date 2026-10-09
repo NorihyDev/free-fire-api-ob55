@@ -60,6 +60,7 @@ def test_protocol_errors(body):
         "https://127.0.0.1",
         "https://secret@client.ind.freefiremobile.com",
         "https://client.ind.freefiremobile.com:444",
+        "https://client.ind.freefiremobile.com:invalid",
     ],
 )
 def test_discovered_server_url_is_restricted(url):

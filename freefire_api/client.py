@@ -11,8 +11,6 @@ from freefire_api.errors import APIError
 from freefire_api.protocol.codec import decode, encode
 from freefire_api.settings import REGIONS, Settings
 
-TOKEN_URL = "https://ffmconnect.live.gop.garenanow.com/oauth/guest/token/grant"
-
 
 class Credential(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -41,14 +39,20 @@ def load_accounts(settings: Settings) -> dict[str, Credential]:
 
 
 def validate_server_url(value: str) -> str:
-    parsed = urlsplit(value)
+    try:
+        parsed = urlsplit(value)
+        port = parsed.port
+    except ValueError as exc:
+        raise APIError(
+            502, "UPSTREAM_PROTOCOL_ERROR", "Game login returned an invalid server URL."
+        ) from exc
     host = parsed.hostname or ""
     if (
         parsed.scheme != "https"
         or not host.endswith(".freefiremobile.com")
         or parsed.username
         or parsed.password
-        or parsed.port not in (None, 443)
+        or port not in (None, 443)
         or parsed.query
         or parsed.fragment
         or parsed.path not in ("", "/")
@@ -113,7 +117,7 @@ class FreeFireClient:
             if current and current is not rejected and current.expires_at > time.monotonic():
                 return current
             response = await self.post(
-                TOKEN_URL,
+                self.settings.token_url,
                 data={
                     "uid": credential.uid,
                     "password": credential.password.get_secret_value(),

@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     cache_ttl_seconds: float = Field(default=30, ge=0, le=3600)
     rate_limit_per_minute: int = Field(default=60, ge=1, le=10000)
     login_url: str = "https://loginbp.ggblueshark.com/MajorLogin"
+    token_url: str = "https://ffmconnect.live.gop.garenanow.com/oauth/guest/token/grant"
+    guest_register_url: str = "https://ffmconnect.live.gop.garenanow.com/oauth/guest/register"
     unity_version: str = "2018.4.11f1"
     aes_key: SecretStr = SecretStr("Yg&tc%DEuh6%Zc^8")
     aes_iv: SecretStr = SecretStr("6oyZDr22E3ychjM%")
@@ -42,7 +44,7 @@ class Settings(BaseSettings):
             raise ValueError("Protocol AES key and IV must be 16 bytes")
         return value
 
-    @field_validator("login_url")
+    @field_validator("login_url", "token_url", "guest_register_url")
     @classmethod
     def valid_login_url(cls, value: str) -> str:
         parsed = urlsplit(value)

@@ -5,7 +5,14 @@ from pathlib import Path
 from grpc_tools import protoc
 
 root = Path(__file__).resolve().parents[1]
-names = ["MajorLogin", "PlayerPersonalShow", "SearchAccountByName", "PlayerStats", "PlayerCSStats"]
+names = [
+    "MajorLogin",
+    "MajorRegister",
+    "PlayerPersonalShow",
+    "SearchAccountByName",
+    "PlayerStats",
+    "PlayerCSStats",
+]
 result = protoc.main(
     [
         "protoc",

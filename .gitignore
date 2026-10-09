@@ -10,6 +10,7 @@ dist/
 .env.*
 !.env.example
 config/accounts.json
+config/guest-pending.json
 bruno/environments/Private.bru
 *.log
 .coverage
