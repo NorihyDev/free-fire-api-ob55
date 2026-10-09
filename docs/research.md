@@ -7,12 +7,19 @@ from community reverse-engineered protocol details.
 | --- | --- | --- |
 | [Garena OB55 patch notes](https://ff.garena.com/en/article/1712/) | Official OB55 announcement dated September 10, 2026; BR/CS game changes | Does not document a public player-data REST API or these protobuf schemas |
 | [0xMe/FreeFire-Api](https://github.com/0xMe/FreeFire-Api) | Original Python guest login, encrypted player requests, and BR/CS/search route design | Old release settings, hardcoded profile host, inconsistent timeouts; no live verification for this project |
+| [WizkModz/TeeXezDevFFTCP](https://github.com/WizkModz/TeeXezDevFFTCP/blob/main/teexez/ReQAPI.py) | Guest token-grant or OAuth token-inspection precedes MajorLogin/GetLoginData and TCP auth | Does not offer anonymous game access; no bot credentials or code copied |
 | [rifancorteza/ffapis](https://github.com/rifancorteza/ffapis) | GPL-3.0 protobuf files, configurable OB headers and corresponding protocol request fields | Community implementation; its own prior live-test claims do not verify this API |
 | [ffapis configuration](https://github.com/rifancorteza/ffapis/blob/main/docs/configuration.md) | Client identifiers, guest OAuth endpoint, AES interoperability values | Values can change independently of OB |
 | [FastAPI documentation](https://fastapi.tiangolo.com/tutorial/bigger-applications/) | Router dependencies and generated API documentation | Framework reference, not game protocol evidence |
 | [Bruno documentation](https://docs.usebruno.com/) | Portable request collections and response assertions | Client tooling reference |
 
 ## Implemented flow
+
+The default direct-session mode starts with an operator-owned game JWT and its
+regional URL, then performs steps 5–6 below. It makes no token-grant, inspection
+or MajorLogin calls. It does not need TCP sockets. Valid token access is still required.
+
+The optional older guest mode uses this complete flow:
 
 1. Read an operator-owned guest login for the requested region.
 2. Request a Garena guest OAuth token using form encoding.
@@ -24,6 +31,8 @@ from community reverse-engineered protocol details.
 Requests use the regional URL discovered during login rather than a hardcoded
 Indian host. Session login is serialized per region and cached with a TTL.
 Server 401/403 causes one refresh; refresh is never an unlimited loop.
+That refresh applies only to guest mode. Direct-session mode returns a clear
+session rejection error after the first 401/403, without authenticating or retrying.
 
 Protocol request mapping:
 
@@ -49,6 +58,9 @@ The local demo server and Bruno collection can be exercised without game account
 These checks do not establish live Garena connectivity. The single guest creation
 attempt returned HTTP 404 before issuing an account. Live player results therefore
 remain unverified until the operator configures an owned guest account.
+Direct-session tests additionally prove that only player endpoints are called
+and that expired/rejected sessions do not fall back to Garena auth. No owned game
+session token was supplied, so direct-session live results are also unverified.
 
 This project provides player data retrieval. It does not offer mass account
 creation, automated profile likes, friend mutations, or gameplay modifications.

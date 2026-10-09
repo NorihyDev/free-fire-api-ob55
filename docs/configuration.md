@@ -7,8 +7,10 @@ relative paths. Restart after changing settings or account credentials.
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `FF_MODE` | `live` | `live` or synthetic `demo` |
+| `FF_AUTH_METHOD` | `session` | Existing game token, or `guest` for Garena OAuth login |
 | `FF_RELEASE_VERSION` | `OB55` | Game release header (`OB` plus 2–3 digits) |
 | `FF_ACCOUNTS_FILE` | `config/accounts.json` | Private account file |
+| `FF_SESSIONS_FILE` | `config/sessions.json` | Private existing game sessions |
 | `FF_DEFAULT_REGION` | `IND` | Default query region |
 | `FF_API_KEY` | empty | Optional player endpoint key |
 | `FF_TIMEOUT_SECONDS` | `15` | HTTP operation timeout, up to 120 seconds |
@@ -21,11 +23,17 @@ relative paths. Restart after changing settings or account credentials.
 | `FF_AES_KEY`, `FF_AES_IV` | community protocol constants | 16-byte UTF-8 transport values |
 | `FF_GARENA_CLIENT_ID`, `FF_GARENA_CLIENT_SECRET` | community client constants | Guest OAuth client values |
 
-The account file is a JSON object mapping uppercase region codes to a string
+The session file is a JSON object mapping uppercase region codes to `token` and
+`server_url`. Tokens need a JWT `exp` claim or an explicit `expires_at` Unix timestamp.
+See [direct-session setup](sessions.md). Missing/expired sessions do not make the
+API ready, and they never trigger Garena auth calls in session mode.
+
+For optional `FF_AUTH_METHOD=guest`, the account file maps uppercase regions to a string
 `uid` and `password`. Empty `{}` is valid but does not make live mode ready.
 No account password is bundled. Do not use credentials copied from public repos.
 
-Game login discovers the regional server URL; the API accepts HTTPS subdomains
+In guest mode, game login discovers the regional URL; in session mode, the operator
+provides the matching URL. The API accepts HTTPS subdomains
 of `freefiremobile.com`, on port 443, with no embedded credentials or path/query.
 Redirects are disabled. A future legitimate domain change needs a reviewed
 allowlist change in `freefire_api/client.py`.
@@ -50,6 +58,8 @@ resolve the existing account before another provisioning attempt.
 - **API does not start:** ensure `.venv` dependencies are installed, inspect the
   account JSON format, remove placeholders in live mode, and run from the project root.
 - **503 REGION_NOT_CONFIGURED:** add an account for the requested region and restart.
+- **503 SESSION_EXPIRED / SESSION_REJECTED:** supply a fresh game session token
+  you own. Direct-session mode will not refresh it via Garena authentication.
 - **502 UPSTREAM_AUTH_FAILED:** guest login credentials may be incorrect or expired;
   upstream endpoint/client settings may have changed. A player's public UID is not
   necessarily the guest login UID. Google/Facebook passwords cannot be used here.
@@ -60,7 +70,7 @@ resolve the existing account before another provisioning attempt.
 - **429 behind a reverse proxy:** configure trusted proxy handling in Uvicorn.
   Without it, the proxy address may be shared by all callers.
 - **Stale data:** cache entries expire after `FF_CACHE_TTL_SECONDS`; set it to 0
-  and restart for direct requests. Credential and session updates also require restart.
+  and restart for direct requests. Credential and session-file updates require restart.
 
 The API's timeout applies to individual HTTP operations. An uncached player
 request can require OAuth, game login, the player call, and a refresh attempt;

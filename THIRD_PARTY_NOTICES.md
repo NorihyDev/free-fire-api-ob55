@@ -7,6 +7,13 @@ The original design reference requested for this project is
 the guest authentication, encrypted protobuf requests, and player data endpoints.
 Its application source and account credentials were not copied.
 
+[WizkModz/TeeXezDevFFTCP](https://github.com/WizkModz/TeeXezDevFFTCP) was inspected
+at the operator's request to compare authentication methods. Its source still
+uses Garena guest token-grant or OAuth token-inspection before game login. No
+executable code, credentials or TCP action implementation was copied. Our
+direct-session mode is an independent implementation that reuses an operator-owned
+game session. See `docs/sessions.md` for the exact distinction.
+
 The six protobuf source files under `proto/` are redistributed from
 [rifancorteza/ffapis](https://github.com/rifancorteza/ffapis), commit
 `d7a71b4e4e9eb6826cc8649fdffa4302813ea1c8`, whose `package.json` and README declare

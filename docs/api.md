@@ -9,7 +9,7 @@ Interactive documentation: `/docs` and `/redoc`.
 - `region` defaults to `FF_DEFAULT_REGION` (`IND`) and is case insensitive.
 - Recognized codes: `IND`, `SG`, `RU`, `ID`, `TW`, `US`, `VN`, `TH`, `ME`, `PK`,
   `CIS`, `BR`, `BD`. Recognition does not prove upstream availability. Guest
-  credentials must belong to the requested region.
+  sessions or guest credentials must belong to the requested region.
 - UIDs must be positive decimal uint64 strings (`1` through `18446744073709551615`).
   Use strings in JavaScript clients.
 - Player requests are limited to 60 per minute per client IP by default.
@@ -60,10 +60,13 @@ Search is scoped to the regional session, with no automatic global fan-out.
 `GET /health` returns process status, mode and protocol release header. It does not
 test game connectivity.
 
-`GET /ready` returns 200 when at least one live credential is configured or when
-demo mode is enabled; otherwise 503. It reports `configured_regions` and
+`GET /ready` returns 200 when at least one non-expired session is configured,
+when at least one guest credential is configured in guest mode, or when demo mode
+is enabled; otherwise 503. It reports `configured_regions`, `available_regions`,
+`auth_method` and
 `upstream_verified: false`. That field refers to this endpoint's check, which never
 contacts Garena. A region can be configured while its credentials are invalid.
+In direct-session mode, locally expired tokens are excluded from `available_regions`.
 
 `GET /api/v1/regions` lists codes and a `configured` flag for each.
 
@@ -73,7 +76,7 @@ contacts Garena. A region can be configured while its credentials are invalid.
 {
   "error": {
     "code": "REGION_NOT_CONFIGURED",
-    "message": "Add your guest credentials for IND to the local accounts file and restart."
+    "message": "Add your own game session token for IND to the sessions file and restart."
   },
   "request_id": "example-request-id"
 }
@@ -94,12 +97,16 @@ Passwords, session tokens and raw game responses are never included in errors.
 | 502 | `UPSTREAM_REJECTED_REQUEST` | Check OB/protocol settings |
 | 502 | `UPSTREAM_EMPTY_RESPONSE`, `UPSTREAM_PROTOCOL_ERROR` | Check response schemas/settings |
 | 503 | `REGION_NOT_CONFIGURED` | Configure the region and restart |
+| 503 | `SESSION_EXPIRED` | Replace your own expired game token and restart |
+| 503 | `SESSION_REJECTED` | Game server rejected the token; replace it and restart |
 | 503 | `UPSTREAM_RATE_LIMITED` | Wait; `Retry-After: 60` |
 | 504 | `UPSTREAM_TIMEOUT` | Retry later |
 | 500 | `INTERNAL_ERROR` | Investigate using the request ID |
 
-Game 401/403 triggers one session refresh. Authentication failures after that
-are returned as 502. No retry loop runs for timeouts, rate limits or other failures.
+In guest mode, game 401/403 triggers one session refresh; failures after that are
+returned as 502. In direct-session mode, game 401/403 returns `503 SESSION_REJECTED`
+after one player request, without any login or retry. Locally expired sessions
+return 503 before any network request. No retry loop runs for timeouts or rate limits.
 
 ## Legacy routes
 
