@@ -3,6 +3,7 @@
 .env
 .env.*
 config/accounts.json
+config/sessions.json
 config/guest-pending.json
 __pycache__
 .pytest_cache

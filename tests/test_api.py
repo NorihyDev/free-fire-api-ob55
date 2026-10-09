@@ -77,7 +77,9 @@ def test_stats_search_and_legacy_routes():
 
 
 def test_live_without_credentials_does_not_fall_back_to_demo(tmp_path):
-    config = Settings(_env_file=None, mode="live", accounts_file=tmp_path / "missing.json")
+    config = Settings(
+        _env_file=None, mode="live", auth_method="guest", accounts_file=tmp_path / "missing.json"
+    )
     with TestClient(create_app(config)) as client:
         assert client.get("/health").status_code == 200
         assert client.get("/ready").status_code == 503
@@ -89,7 +91,7 @@ def test_live_without_credentials_does_not_fall_back_to_demo(tmp_path):
 def test_invalid_account_configuration_does_not_expose_secrets(tmp_path):
     path = tmp_path / "accounts.json"
     path.write_text(json.dumps({"IND": {"uid": "bad", "password": "hidden-secret"}}))
-    config = Settings(_env_file=None, mode="live", accounts_file=path)
+    config = Settings(_env_file=None, mode="live", auth_method="guest", accounts_file=path)
     with pytest.raises(RuntimeError) as caught, TestClient(create_app(config)):
         pass
     assert "hidden-secret" not in str(caught.value)

@@ -86,11 +86,12 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
 
     app = FastAPI(
         title="Free Fire API",
-        version="0.1.0",
+        version="0.2.0",
         lifespan=lifespan,
         description=(
-            "Unofficial Free Fire player data API. Configure your own guest credentials for live "
-            "requests. Demo mode is labelled in every response. UIDs and protobuf uint64 values "
+            "Unofficial Free Fire player data API. Direct-session mode uses your existing game JWT "
+            "without Garena auth calls. A valid owned token is required for live requests. "
+            "Demo mode is labelled in every response. UIDs and protobuf uint64 values "
             "are strings to preserve precision. Live OB55 needs credentialed verification."
         ),
         license_info={"name": "GPL-3.0-only", "identifier": "GPL-3.0-only"},
@@ -194,17 +195,27 @@ def create_app(settings: Settings | None = None, transport: httpx.AsyncBaseTrans
 
     @app.get("/health", tags=["System"], summary="Check the API process")
     async def health():
-        return {"status": "ok", "mode": settings.mode, "release_version": settings.release_version}
+        return {
+            "status": "ok",
+            "mode": settings.mode,
+            "release_version": settings.release_version,
+            "auth_method": settings.auth_method if settings.mode == "live" else None,
+        }
 
     @app.get("/ready", tags=["System"], summary="Check credential configuration")
     async def ready(request: Request):
         regions = sorted(request.app.state.client.accounts)
-        ready = settings.mode == "demo" or bool(regions)
+        available = (
+            regions if settings.mode == "demo" else request.app.state.client.available_regions()
+        )
+        ready = settings.mode == "demo" or bool(available)
         return JSONResponse(
             {
                 "status": "ready" if ready else "not_ready",
                 "mode": settings.mode,
                 "configured_regions": regions,
+                "available_regions": available,
+                "auth_method": settings.auth_method if settings.mode == "live" else None,
                 "upstream_verified": False,
                 "note": "Configuration check only. A player request verifies live upstream access.",
             },

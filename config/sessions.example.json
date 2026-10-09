@@ -1,0 +1,6 @@
+{
+  "IND": {
+    "token": "YOUR_OWN_GAME_SESSION_JWT",
+    "server_url": "https://client.ind.freefiremobile.com"
+  }
+}

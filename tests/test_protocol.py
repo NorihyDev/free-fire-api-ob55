@@ -72,7 +72,7 @@ def test_discovered_server_url_is_restricted(url):
 def config(tmp_path):
     path = tmp_path / "accounts.json"
     path.write_text(json.dumps({"IND": {"uid": "12345", "password": "own-password"}}))
-    return Settings(_env_file=None, accounts_file=path, mode="live")
+    return Settings(_env_file=None, accounts_file=path, mode="live", auth_method="guest")
 
 
 async def test_live_flow_refresh_and_cs_wire_mapping(config):

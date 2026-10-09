@@ -11,8 +11,10 @@ REGIONS = ("IND", "SG", "RU", "ID", "TW", "US", "VN", "TH", "ME", "PK", "CIS", "
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="FF_", env_file=".env", extra="ignore")
     mode: Literal["live", "demo"] = "live"
+    auth_method: Literal["session", "guest"] = "session"
     release_version: str = Field(default="OB55", pattern=r"^OB[0-9]{2,3}$")
     accounts_file: Path = Path("config/accounts.json")
+    sessions_file: Path = Path("config/sessions.json")
     default_region: str = "IND"
     api_key: SecretStr = SecretStr("")
     timeout_seconds: float = Field(default=15, gt=0, le=120)

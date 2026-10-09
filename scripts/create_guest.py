@@ -17,7 +17,7 @@ from freefire_api.settings import REGIONS, Settings
 
 
 async def create(region: str, nickname: str):
-    settings = Settings(mode="live")
+    settings = Settings(mode="live", auth_method="guest")
     target = settings.accounts_file
     pending = Path("config/guest-pending.json")
     if target.exists() and json.loads(target.read_text(encoding="utf-8-sig")):

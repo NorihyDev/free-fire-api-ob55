@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, SecretStr, ValidationError
 
 from freefire_api.errors import APIError
 from freefire_api.protocol.codec import decode, encode
+from freefire_api.session_config import load_sessions
 from freefire_api.settings import REGIONS, Settings
 
 
@@ -67,9 +68,22 @@ class FreeFireClient:
     def __init__(self, settings: Settings, http: httpx.AsyncClient):
         self.settings = settings
         self.http = http
-        self.accounts = load_accounts(settings)
+        self.accounts = (
+            load_sessions(settings)
+            if settings.auth_method == "session"
+            else load_accounts(settings)
+        )
         self.sessions: dict[str, Session] = {}
         self.locks = {region: asyncio.Lock() for region in REGIONS}
+
+    def available_regions(self) -> list[str]:
+        if self.settings.auth_method == "session":
+            return sorted(
+                region
+                for region, credential in self.accounts.items()
+                if credential.remaining_seconds() > 0
+            )
+        return sorted(self.accounts)
 
     def headers(self, token: str = "") -> dict:
         return {
@@ -107,10 +121,35 @@ class FreeFireClient:
     async def session(self, region: str, rejected: Session | None = None) -> Session:
         credential = self.accounts.get(region)
         if not credential:
+            instruction = (
+                "game session token"
+                if self.settings.auth_method == "session"
+                else "guest credentials"
+            )
+            filename = "sessions" if self.settings.auth_method == "session" else "accounts"
             raise APIError(
                 503,
                 "REGION_NOT_CONFIGURED",
-                f"Add your guest credentials for {region} to the local accounts file and restart.",
+                f"Add your own {instruction} for {region} to the {filename} file and restart.",
+            )
+        if self.settings.auth_method == "session":
+            remaining = credential.remaining_seconds()
+            if remaining <= 0:
+                raise APIError(
+                    503,
+                    "SESSION_EXPIRED",
+                    "Game session expired. Update your local token and restart.",
+                )
+            if rejected is not None:
+                raise APIError(
+                    503,
+                    "SESSION_REJECTED",
+                    "Game server rejected the session. Update your local token and restart.",
+                )
+            return Session(
+                credential.token.get_secret_value(),
+                credential.server_url,
+                time.monotonic() + remaining,
             )
         async with self.locks[region]:
             current = self.sessions.get(region)
