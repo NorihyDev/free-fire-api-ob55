@@ -21,6 +21,10 @@ access to authenticated game servers.
 > October 9, 2026. Configure your own session token and verify upstream settings
 > before relying on live responses. Garena may change these unofficial endpoints.
 
+An actual encrypted profile request without a session token returned **HTTP 401**
+from the Indian game server on October 9, 2026. The API therefore cannot serve
+live player data anonymously. See [the verification details](docs/sessions.md).
+
 ## Start locally
 
 Python 3.11 or newer is required. Run these commands from the repository root.

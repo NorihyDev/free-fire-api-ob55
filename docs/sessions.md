@@ -74,3 +74,9 @@ access is obtaining a valid session from an account they own, or using a player
 data provider they are authorized to access. Previously documented public example
 services were also checked: the Render example returned HTTP 404 and the old
 Vercel example returned HTTP 401. Neither was adopted as a working provider.
+
+A real encrypted profile request to the Indian game server's
+`GetPlayerPersonalShow` endpoint, with no Authorization header, was also tested
+on October 9, 2026. It returned **HTTP 401**, not player data. This confirms that
+the tested request cannot retrieve a profile anonymously; a valid game session
+is still needed. No attempt was made to guess, forge or reuse another account's token.
