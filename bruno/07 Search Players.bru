@@ -1,0 +1,28 @@
+meta {
+  name: Search Players
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/v1/players/search?keyword={{keyword}}&region={{region}}
+  body: none
+  auth: none
+}
+
+params:query {
+  keyword: {{keyword}}
+  region: {{region}}
+}
+
+tests {
+  test("Search returns a labelled data object", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().meta.source).to.equal(bru.getEnvVar("expectedSource"));
+    expect(res.getBody().data).to.be.an("object");
+  });
+}
+
+docs {
+  Searches only the selected region. No results may omit the infos field.
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Battle Royale Stats
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/v1/players/{{uid}}/stats?region={{region}}&mode=br&match_type=career
+  body: none
+  auth: none
+}
+
+params:query {
+  region: {{region}}
+  mode: br
+  match_type: career
+}
+
+tests {
+  test("BR stats return a labelled data object", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().meta.source).to.equal(bru.getEnvVar("expectedSource"));
+    expect(res.getBody().data).to.be.an("object");
+  });
+}

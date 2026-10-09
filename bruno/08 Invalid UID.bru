@@ -1,0 +1,23 @@
+meta {
+  name: Invalid UID
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/v1/players/invalid/profile?region={{region}}
+  body: none
+  auth: none
+}
+
+params:query {
+  region: {{region}}
+}
+
+tests {
+  test("Invalid UID is rejected consistently", function () {
+    expect(res.getStatus()).to.equal(422);
+    expect(res.getBody().error.code).to.equal("VALIDATION_ERROR");
+    expect(res.getBody().request_id).to.be.a("string");
+  });
+}

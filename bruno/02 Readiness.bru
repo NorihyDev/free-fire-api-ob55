@@ -1,0 +1,23 @@
+meta {
+  name: Readiness
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/ready
+  body: none
+  auth: none
+}
+
+tests {
+  test("Local configuration is ready", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("ready");
+    expect(res.getBody().upstream_verified).to.equal(false);
+  });
+}
+
+docs {
+  This checks local configuration. It does not contact the game server.
+}

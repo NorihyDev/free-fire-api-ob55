@@ -1,0 +1,30 @@
+meta {
+  name: Player Profile
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/players/{{uid}}/profile?region={{region}}&gallery=false
+  body: none
+  auth: none
+}
+
+params:query {
+  region: {{region}}
+  gallery: false
+}
+
+tests {
+  test("Profile has the expected source and exact UID", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().meta.source).to.equal(bru.getEnvVar("expectedSource"));
+    expect(res.getBody().data.basicinfo.accountid).to.equal(String(bru.getEnvVar("uid")));
+    expect(res.getBody().meta.request_id).to.be.a("string");
+  });
+}
+
+docs {
+  uid is the target player UID. The server's private guest credentials are separate.
+  Set gallery=true to request optional gallery fields.
+}

@@ -1,0 +1,28 @@
+meta {
+  name: Legacy Profile
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/get_player_personal_show?uid={{uid}}&server={{region}}
+  body: none
+  auth: none
+}
+
+params:query {
+  uid: {{uid}}
+  server: {{region}}
+}
+
+tests {
+  test("Original route name uses the new response envelope", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().meta.source).to.equal(bru.getEnvVar("expectedSource"));
+    expect(res.getBody().data.basicinfo.accountid).to.equal(String(bru.getEnvVar("uid")));
+  });
+}
+
+docs {
+  Deprecated adapter. The data/meta envelope differs from the original project.
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Clash Squad Stats
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v1/players/{{uid}}/stats?region={{region}}&mode=cs&match_type=ranked
+  body: none
+  auth: none
+}
+
+params:query {
+  region: {{region}}
+  mode: cs
+  match_type: ranked
+}
+
+tests {
+  test("CS stats return a labelled data object", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().meta.source).to.equal(bru.getEnvVar("expectedSource"));
+    expect(res.getBody().data).to.be.an("object");
+  });
+}

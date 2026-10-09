@@ -1,0 +1,19 @@
+meta {
+  name: Health
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/health
+  body: none
+  auth: none
+}
+
+tests {
+  test("API is healthy in the expected mode", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getBody().status).to.equal("ok");
+    expect(res.getBody().mode).to.equal(bru.getEnvVar("expectedSource"));
+  });
+}

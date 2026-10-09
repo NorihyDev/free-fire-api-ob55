@@ -1,0 +1,22 @@
+meta {
+  name: Invalid Region
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/v1/players/{{uid}}/profile?region=INVALID
+  body: none
+  auth: none
+}
+
+params:query {
+  region: INVALID
+}
+
+tests {
+  test("Invalid region is rejected consistently", function () {
+    expect(res.getStatus()).to.equal(422);
+    expect(res.getBody().error.code).to.equal("INVALID_REGION");
+  });
+}
