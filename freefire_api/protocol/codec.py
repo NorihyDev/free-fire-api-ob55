@@ -32,6 +32,8 @@ def decode(schema: str, body: bytes) -> dict:
         message.ParseFromString(body)
     except DecodeError as exc:
         raise APIError(
-            502, "UPSTREAM_PROTOCOL_ERROR", "Game response could not be decoded; check protocol version."
+            502,
+            "UPSTREAM_PROTOCOL_ERROR",
+            "Game response could not be decoded; check protocol version.",
         ) from exc
     return json_format.MessageToDict(message, preserving_proto_field_name=True)

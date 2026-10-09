@@ -1,0 +1,11 @@
+{
+  "basicinfo": {
+    "accountid": "1234567890", "nickname": "DemoPlayer", "region": "IND",
+    "level": 50, "exp": 250000, "rank": 301, "rankingpoints": 2000,
+    "csrank": 301, "csrankingpoints": 30, "liked": 42,
+    "createat": "1609459200", "lastloginat": "1791504000"
+  },
+  "clanbasicinfo": {"clanid": "123456", "clanname": "DemoGuild", "clanlevel": 3},
+  "petinfo": {"id": 1300000001, "level": 5},
+  "socialinfo": {"accountid": "1234567890", "signature": "Synthetic demo fixture"}
+}

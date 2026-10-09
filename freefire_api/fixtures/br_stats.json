@@ -1,0 +1,5 @@
+{
+  "solostats": {"accountid": "1234567890", "gamesplayed": 100, "wins": 12, "kills": 240, "detailedstats": {"deaths": 88, "headshotkills": 60}},
+  "duostats": {"accountid": "1234567890", "gamesplayed": 50, "wins": 8, "kills": 110},
+  "quadstats": {"accountid": "1234567890", "gamesplayed": 200, "wins": 40, "kills": 650}
+}
